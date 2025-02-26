@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
@@ -26,35 +26,50 @@ import ProjectManagement from './pages/ProjectManagement';
 import ReportManagement from './pages/ReportManagement';
 import BusinessManagement from './pages/BusinessManagement';
 import ConnectionManager from './components/ConnectionManager';
-import ContentModeration from './components/ContentModeration';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { queryClient } from './services/queryClient';
+import LoadingSpinner from './components/LoadingSpinner';
+
+// Chargement dynamique des routes
+const BusinessDashboard = React.lazy(() => import('./components/features/BusinessDashboard'));
+const ContentModeration = React.lazy(() => import('./components/features/ContentModeration'));
 
 const App: React.FC = () => {
   return (
     <Provider store={store}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Landing />} />
-            <Route path="login" element={<LoginPage />} />
-            <Route path="register" element={<RegisterPage />} />
-            
-            <Route element={<ProtectedRoute />}>
-              <Route path="dashboard" element={<Network />} />
-              <Route path="projects" element={<Projects />} />
-              <Route path="projects/:id" element={<ProjectDetails />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="connections" element={<ConnectionManager />} />
-            </Route>
-            
-            <Route element={<AdminRoute />}>
-              <Route path="admin" element={<AdminDashboard />} />
-              <Route path="admin/moderation" element={<ContentModeration />} />
-              <Route path="admin/users" element={<UserManagement />} />
-            </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Landing />} />
+                <Route path="login" element={<LoginPage />} />
+                <Route path="register" element={<RegisterPage />} />
+                
+                <Route element={<ProtectedRoute />}>
+                  <Route path="dashboard" element={<Network />} />
+                  <Route path="projects" element={<Projects />} />
+                  <Route path="projects/:id" element={<ProjectDetails />} />
+                  <Route path="profile" element={<Profile />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="connections" element={<ConnectionManager />} />
+                </Route>
+                
+                <Route element={<AdminRoute />}>
+                  <Route path="admin" element={<AdminDashboard />} />
+                  <Route path="admin/moderation" element={<ContentModeration />} />
+                  <Route path="admin/users" element={<UserManagement />} />
+                </Route>
+              </Route>
+              {/* Routes optimisées */}
+              <Route path="/business/:id" element={<BusinessDashboard />} />
+              <Route path="/moderation" element={<ContentModeration />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
     </Provider>
   );
 };
