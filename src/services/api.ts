@@ -1,23 +1,16 @@
 import axios from 'axios';
 
+// Création d'une instance unique d'axios
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL,
+  timeout: 10000
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
+// Intercepteur unifié pour la gestion des erreurs
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response.status === 401) {
-      localStorage.removeItem('token');
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
       window.location.href = '/login';
     }
     return Promise.reject(error);

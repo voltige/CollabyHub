@@ -1,10 +1,14 @@
-import '@testing-library/jest-dom'
-import { expect, afterEach } from 'vitest'
-import { cleanup } from '@testing-library/react'
-import matchers from '@testing-library/jest-dom/matchers'
+import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
 
-expect.extend(matchers)
-
+// Nettoyage automatique après chaque test
 afterEach(() => {
-  cleanup()
-})
+  cleanup();
+});
+
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
