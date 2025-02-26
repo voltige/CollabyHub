@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.toggle {
+  @apply w-10 h-6 bg-gray-200 rounded-full relative cursor-pointer;
+  appearance: none;
+}
+
+.toggle:checked {
+  @apply bg-indigo-600;
+}
+
+.toggle::before {
+  content: '';
+  @apply absolute w-4 h-4 bg-white rounded-full left-1 top-1 transition-transform;
+}
+
+.toggle:checked::before {
+  @apply transform translate-x-4;
+}
